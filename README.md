@@ -22,8 +22,8 @@ sudo apt install -y git python3 curl
 ## Étape 1 — Cloner le dépôt
 
 ```bash
-git clone https://github.com/TON_USERNAME/elecium-node
-cd elecium-node
+git clone https://github.com/Mister-By/elecium-substrate
+cd elecium-substrate
 git checkout v1.0.0  # tag de la version déployée
 ```
 
@@ -39,7 +39,7 @@ target/release/wbuild/solochain-template-runtime/solochain_template_runtime.comp
 ## Étape 3 — Télécharger le runtime depuis la blockchain
 
 ```bash
-curl -s -X POST http://RPC_IP:9944 \
+curl -s -X POST https://rpc.elecium.online \
   -H 'Content-Type: application/json' \
   -d '{"id":1,"jsonrpc":"2.0","method":"state_getStorage","params":["0x3a636f6465"]}' \
   | python3 -c "
@@ -77,15 +77,14 @@ Points clés à auditer :
 
 ## Nœuds RPC publics
 
-- `ws://RPC1_IP:9944`
-- `ws://RPC2_IP:9944`
+- `https://rpc.elecium.online`
 
 ## Genesis hash
 0x0f02dce49c6ae9cd867b32f953b844e938db01a9b3425f5a0bf5d3501ce44de1
 
 Vérifiable avec :
 ```bash
-curl -s -X POST http://RPC_IP:9944 \
+curl -s -X POST https://rpc.elecium.online \
   -H 'Content-Type: application/json' \
   -d '{"id":1,"jsonrpc":"2.0","method":"chain_getBlockHash","params":[0]}' \
   | python3 -m json.tool
