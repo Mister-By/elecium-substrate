@@ -19,6 +19,7 @@ use sp_runtime::{
 use sp_version::NativeVersion;
 use sp_version::RuntimeVersion;
 
+
 pub use frame_system::Call as SystemCall;
 pub use pallet_balances::Call as BalancesCall;
 pub use pallet_timestamp::Call as TimestampCall;
@@ -83,12 +84,15 @@ mod block_times {
 	/// slot_duration()`.
 	///
 	/// Change this to adjust the block time.
-	pub const MILLI_SECS_PER_BLOCK: u64 = 6000;
+	pub const MILLI_SECS_PER_BLOCK: u64 = 2500;
 
 	// NOTE: Currently it is not possible to change the slot duration after the chain has started.
 	// Attempting to do so will brick block production.
 	pub const SLOT_DURATION: u64 = MILLI_SECS_PER_BLOCK;
 }
+
+
+
 pub use block_times::*;
 
 // Time is measured by number of blocks.
@@ -225,4 +229,11 @@ mod runtime {
 	// Include the custom logic from the pallet-template in the runtime.
 	#[runtime::pallet_index(7)]
 	pub type Template = pallet_template;
+
+	#[runtime::pallet_index(8)] 
+	pub type Vote = pallet_vote;
+}
+impl pallet_vote::Config for Runtime {
+    type AdminOrigin = frame_system::EnsureRoot<AccountId>;
+    type RuntimeEvent = RuntimeEvent;
 }

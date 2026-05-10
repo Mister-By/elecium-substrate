@@ -1,28 +1,14 @@
-FROM docker.io/paritytech/ci-unified:latest as builder
+FROM debian:bookworm-slim
 
-WORKDIR /polkadot
-COPY . /polkadot
+RUN apt-get update && apt-get install -y \
+    libssl3 ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
-RUN cargo fetch
-RUN cargo build --locked --release
+COPY target/release/solochain-template-node /usr/local/bin/node
 
-FROM docker.io/parity/base-bin:latest
+RUN useradd -m -u 1000 substrate
+USER substrate
 
-COPY --from=builder /polkadot/target/release/solochain-template-node /usr/local/bin
+EXPOSE 30333 9944
 
-USER root
-RUN useradd -m -u 1001 -U -s /bin/sh -d /polkadot polkadot && \
-	mkdir -p /data /polkadot/.local/share && \
-	chown -R polkadot:polkadot /data && \
-	ln -s /data /polkadot/.local/share/polkadot && \
-# unclutter and minimize the attack surface
-	rm -rf /usr/bin /usr/sbin && \
-# check if executable works in this container
-	/usr/local/bin/solochain-template-node --version
-
-USER polkadot
-
-EXPOSE 30333 9933 9944 9615
-VOLUME ["/data"]
-
-ENTRYPOINT ["/usr/local/bin/solochain-template-node"]
+ENTRYPOINT ["/usr/local/bin/node"]

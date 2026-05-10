@@ -15,7 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{AccountId, BalancesConfig, RuntimeGenesisConfig, SudoConfig};
+use crate::{AccountId, BalancesConfig, RuntimeGenesisConfig};
 use alloc::{vec, vec::Vec};
 use frame_support::build_struct_json_patch;
 use serde_json::Value;
@@ -39,32 +39,47 @@ fn testnet_genesis(
 				.collect::<Vec<_>>(),
 		},
 		aura: pallet_aura::GenesisConfig {
-			authorities: initial_authorities.iter().map(|x| (x.0.clone())).collect::<Vec<_>>(),
+			authorities: initial_authorities.iter().map(|x| x.0.clone()).collect::<Vec<_>>(),
 		},
 		grandpa: pallet_grandpa::GenesisConfig {
 			authorities: initial_authorities.iter().map(|x| (x.1.clone(), 1)).collect::<Vec<_>>(),
 		},
-		sudo: SudoConfig { key: Some(root) },
-	})
-}
+                sudo: pallet_sudo::GenesisConfig {
+                        key: Some(root),
+                },
+})}
 
 /// Return the development genesis config.
 pub fn development_config_genesis() -> Value {
-	testnet_genesis(
-		vec![(
-			sp_keyring::Sr25519Keyring::Alice.public().into(),
-			sp_keyring::Ed25519Keyring::Alice.public().into(),
-		)],
-		vec![
-			Sr25519Keyring::Alice.to_account_id(),
-			Sr25519Keyring::Bob.to_account_id(),
-			Sr25519Keyring::AliceStash.to_account_id(),
-			Sr25519Keyring::BobStash.to_account_id(),
-		],
-		sp_keyring::Sr25519Keyring::Alice.to_account_id(),
-	)
-}
+    use sp_core::crypto::Ss58Codec;
 
+    let sudo: AccountId = AccountId::from_ss58check(
+        "5H3K2d3us8qTGjVkRXQXgmqqZiBifJWiggCLPooPgdY2ynTR"
+    ).expect("sudo ss58 invalide");
+
+    testnet_genesis(
+        vec![
+            (
+                AuraId::from_ss58check("5CwAD6VNxigTdMwwykjpj2fjpHrYB72f9hEHboyojug9BdQF").unwrap(),
+                GrandpaId::from_ss58check("5EJbWjhZbgg3ftodyqornJE3NFdcDZifQBFjSc7bbD1rVaET").unwrap(),
+            ),
+            (
+                AuraId::from_ss58check("5GUETb1fTksQLzgZ1Tc2zQUNdS2uwB115GcSFjVLT5SGJq4z").unwrap(),
+                GrandpaId::from_ss58check("5DyBSLyZGT1DmLf7WGEe59qb9g13YodjPHtwLacNBLW6ddFG").unwrap(),
+            ),
+            (
+                AuraId::from_ss58check("5FvR78h8UHLBpB8kNxUkYNKToFbKwNf9896vLqrEfK9dhAk1").unwrap(),
+                GrandpaId::from_ss58check("5F15hnv3vzJesgRfeQDStpUpi5RK97zU3ERutrHpayNCqQmK").unwrap(),
+            ),
+            (
+                AuraId::from_ss58check("5F2Kjzq2iACX3y1ucu668nbWJ5VRyDciK2dFxpRqg1MhrMZK").unwrap(),
+                GrandpaId::from_ss58check("5Gaeg9EZ247UNaBx4YHZXH6WrcFGGHGAFYmhrXUfBj96ohHm").unwrap(),
+            ),
+        ],
+        vec![sudo.clone()],
+        sudo,
+    )
+}
 /// Return the local genesis config preset.
 pub fn local_config_genesis() -> Value {
 	testnet_genesis(

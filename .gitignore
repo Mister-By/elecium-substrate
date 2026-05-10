@@ -1,1 +1,5 @@
 target/
+*.env
+keys/
+*.key
+node.key

@@ -1,0 +1,41 @@
+use ark_bn254::{Bn254, Fr, G1Affine, G2Affine};
+use ark_groth16::{Groth16, PreparedVerifyingKey, Proof, VerifyingKey};
+use ark_serialize::CanonicalDeserialize;
+
+/// Vérifie une preuve Groth16 BN254.
+///
+/// Arguments :
+/// - `vk_bytes`    : VerifyingKey sérialisée (format ark-serialize)
+/// - `proof_bytes` : Proof sérialisée (format ark-serialize)
+/// - `inputs_bytes`: public inputs sérialisés (liste de Fr, format ark-serialize)
+///
+/// Retourne true si la preuve est valide, false sinon.
+pub fn verify_groth16_bn254(
+    vk_bytes: &[u8],
+    proof_bytes: &[u8],
+    inputs_bytes: &[u8],
+) -> bool {
+    // Désérialiser la VerifyingKey
+    let vk = match VerifyingKey::<Bn254>::deserialize_compressed(vk_bytes) {
+        Ok(v) => v,
+        Err(_) => return false,
+    };
+
+    // Désérialiser la Proof
+    let proof = match Proof::<Bn254>::deserialize_compressed(proof_bytes) {
+        Ok(p) => p,
+        Err(_) => return false,
+    };
+
+    // Désérialiser les public inputs (Vec<Fr>)
+    let inputs = match Vec::<Fr>::deserialize_compressed(inputs_bytes) {
+        Ok(i) => i,
+        Err(_) => return false,
+    };
+
+    // Préparer la verifying key (optimisation)
+    let pvk = ark_groth16::prepare_verifying_key(&vk);
+
+    // Vérifier
+    Groth16::<Bn254>::verify_with_processed_vk(&pvk, &inputs, &proof).unwrap_or(false)
+}

@@ -1,0 +1,19 @@
+[package]
+name = "elecium-host-functions"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sp-runtime-interface = { version = "28.0.0", default-features = false }
+ark-groth16 = { version = "0.4", default-features = false, optional = true }
+ark-bn254 = { version = "0.4", default-features = false, features = ["scalar_field", "curve"], optional = true }
+ark-serialize = { version = "0.4", default-features = false, optional = true }
+
+[features]
+default = ["std"]
+std = [
+    "sp-runtime-interface/std",
+    "ark-groth16",
+    "ark-bn254",
+    "ark-serialize",
+]
